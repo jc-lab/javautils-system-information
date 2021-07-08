@@ -1,0 +1,102 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
+}
+
+allprojects {
+    group 'kr.jclab.javautils'
+    version '1.0.0'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'commons-io:commons-io:2.8.0'
+    implementation 'net.java.dev.jna:jna:5.6.0'
+    implementation 'net.java.dev.jna:jna-platform:5.6.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+signing {
+    useGpgCmd()
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            pom.project {
+                name 'plugin-loader'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'plugin-loader'
+                url 'https://github.com/jc-lab/plugin-loader'
+
+                scm {
+                    connection 'scm:git:https://github.com/jc-lab/plugin-loader.git'
+                    developerConnection 'scm:git:ssh://git@github.com/jc-lab/plugin-loader.git'
+                    url 'https://github.com/jc-lab/plugin-loader'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'jclab'
+                        name 'Joseph Lee'
+                        email 'development@jc-lab.net'
+                    }
+                }
+            }
+        }
+    }
+}
