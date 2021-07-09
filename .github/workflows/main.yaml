@@ -1,0 +1,10 @@
+name: Main
+on: [push, pull_request]
+jobs:
+  build-job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sudo apt-get update && sudo apt-get install -y openjdk-8-jdk-headless
+      - run: chmod +x ./gradlew
+      - run: ./gradlew :build :test
