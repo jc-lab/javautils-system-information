@@ -70,16 +70,16 @@ uploadArchives {
             }
 
             pom.project {
-                name 'plugin-loader'
+                name project.name
                 packaging 'jar'
                 // optionally artifactId can be defined here
-                description 'plugin-loader'
-                url 'https://github.com/jc-lab/plugin-loader'
+                description 'cross-platform system information'
+                url 'https://github.com/jc-lab/javautils-system-information'
 
                 scm {
-                    connection 'scm:git:https://github.com/jc-lab/plugin-loader.git'
-                    developerConnection 'scm:git:ssh://git@github.com/jc-lab/plugin-loader.git'
-                    url 'https://github.com/jc-lab/plugin-loader'
+                    connection 'scm:git:https://github.com/jc-lab/javautils-system-information.git'
+                    developerConnection 'scm:git:ssh://git@github.com/jc-lab/javautils-system-information.git'
+                    url 'https://github.com/jc-lab/javautils-system-information'
                 }
 
                 licenses {
