@@ -23,9 +23,6 @@ public class LinuxSMBIOS implements SMBIOSBase {
         } else {
             if (procfsReader.load()) {
                 reader.setPerfect(false);
-                reader.getSmbiosStore().put(DmiType.BASEBOARD, procfsReader.getBaseboardInformation());
-                reader.getSmbiosStore().put(DmiType.BIOS, procfsReader.getBiosInformation());
-                reader.getSmbiosStore().put(DmiType.SYSTEM, procfsReader.getSystemInformation());
             } else {
                 throw new NativeApiErrorException("Permission denied");
             }

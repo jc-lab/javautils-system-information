@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
 import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
 import kr.jclab.javautils.systeminformation.model.SmbiosInformation;
+import kr.jclab.javautils.systeminformation.model.SmbiosProcessor;
 import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,7 +42,7 @@ public enum DmiType implements DmiParsable {
     PROCESSOR(4) {
         @Override
         public SmbiosInformation parse(DMIData data) {
-            return null;
+            return SmbiosProcessor.parse(data);
         }
     },
     MEMORY_CONTROLLER(5) {
