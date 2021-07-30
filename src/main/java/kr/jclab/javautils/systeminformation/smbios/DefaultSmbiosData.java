@@ -1,26 +1,26 @@
 package kr.jclab.javautils.systeminformation.smbios;
 
-import kr.jclab.javautils.systeminformation.model.SmbiosBIOSInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosBaseboardInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosSystemInformation;
+import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
+import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
+import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
 
 public class DefaultSmbiosData implements SmbiosData {
-    private SmbiosBaseboardInformation baseboardInformation;
-    private SmbiosBIOSInformation biosInformation;
-    private SmbiosSystemInformation systemInformation;
+    private SmbiosBaseboard baseboardInformation;
+    private SmbiosBIOS biosInformation;
+    private SmbiosSystem systemInformation;
 
     @Override
-    public SmbiosBaseboardInformation getBaseboardInformation() {
+    public SmbiosBaseboard getBaseboardInformation() {
         return null;
     }
 
     @Override
-    public SmbiosBIOSInformation getBIOSInformation() {
+    public SmbiosBIOS getBIOSInformation() {
         return null;
     }
 
     @Override
-    public SmbiosSystemInformation getSystemInformation() {
+    public SmbiosSystem getSystemInformation() {
         return null;
     }
 }

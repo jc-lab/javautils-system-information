@@ -1,11 +1,11 @@
 package kr.jclab.javautils.systeminformation.smbios;
 
-import kr.jclab.javautils.systeminformation.model.SmbiosBIOSInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosBaseboardInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosSystemInformation;
+import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
+import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
+import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
 
 public interface SmbiosData {
-    SmbiosBaseboardInformation getBaseboardInformation();
-    SmbiosBIOSInformation getBIOSInformation();
-    SmbiosSystemInformation getSystemInformation();
+    SmbiosBaseboard getBaseboardInformation();
+    SmbiosBIOS getBIOSInformation();
+    SmbiosSystem getSystemInformation();
 }
