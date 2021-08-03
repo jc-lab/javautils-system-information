@@ -19,4 +19,20 @@ public class ByteBufferUtil {
 		}
 		return byteArrayOutputStream.toByteArray();
 	}
+
+    public static int readByInt32(byte[] data, int offset) {
+        int x = 0;
+        x |= (data[offset + 0] & 0xff);
+        x |= (data[offset + 1] & 0xff) << 8;
+        x |= (data[offset + 2] & 0xff) << 16;
+        x |= (data[offset + 3] & 0xff) << 24;
+        return x;
+    }
+
+    public static int readByUint16(byte[] data, int offset) {
+        int x = 0;
+        x |= (data[offset + 0] & 0xff);
+        x |= (data[offset + 1] & 0xff) << 8;
+        return x;
+    }
 }
