@@ -5,15 +5,23 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import kr.jclab.javautils.systeminformation.model.SmbiosInformation;
+import kr.jclab.javautils.systeminformation.model.*;
 
 public class SMBIOSReader {
-
-    private final Map<DmiType, SmbiosInformation> smbiosStore = new HashMap<>();
+    private final SmbiosParser smbiosParser;
+    private final Map<Integer, SmbiosInformation> smbiosStore = new HashMap<>();
 
     @lombok.Setter
     @lombok.Getter
     protected boolean perfect = false;
+
+    public SMBIOSReader(SmbiosParser smbiosParser) {
+        this.smbiosParser = smbiosParser;
+    }
+
+    public SMBIOSReader() {
+        this(StaticHolder.DEFAULT_PARSER);
+    }
 
     public void process(ByteBuffer buffer, int totalLength) throws IOException {
         while (buffer.hasRemaining() && buffer.position() < totalLength) {
@@ -29,18 +37,27 @@ public class SMBIOSReader {
     }
 
     protected void dmiParse(DMIHeader header, DMIData data) {
-        DmiType dmiType = DmiType.valueFrom(header.getType());
-        if (dmiType != null) {
-            smbiosStore.computeIfPresent(dmiType, (k, smbiosInformation) -> {
-                SmbiosInformation another = dmiType.parse(data);
-                smbiosInformation.addInformation(another);
-                return smbiosInformation;
-            });
-            smbiosStore.computeIfAbsent(dmiType, smbios -> dmiType.parse(data));
-        }
+        this.smbiosStore.compute(header.getType() & 0xff, (k, old) -> this.smbiosParser.parse(header, data, old));
+    }
+
+    public <T extends SmbiosInformation> T getSmbiosInformation(Integer dmiType) {
+        return (T)this.smbiosStore.get(dmiType);
     }
 
     public <T extends SmbiosInformation> T getSmbiosInformation(DmiType dmiType) {
-        return (T)this.smbiosStore.get(dmiType);
+        return this.getSmbiosInformation(dmiType.getValue());
+    }
+
+    private static class StaticHolder {
+        public static SmbiosParser DEFAULT_PARSER;
+        static {
+            DEFAULT_PARSER = SmbiosParser.builder()
+                    .addParser(new SmbiosBIOS.Parser())
+                    .addParser(new SmbiosBaseboard.Parser())
+                    .addParser(new SmbiosSystem.Parser())
+                    .addParser(new SmbiosMemoryDevice.Parser())
+                    .addParser(new SmbiosProcessor.Parser())
+                    .build();
+        }
     }
 }

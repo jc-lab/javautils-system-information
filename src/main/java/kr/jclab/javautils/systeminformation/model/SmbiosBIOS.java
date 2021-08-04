@@ -3,10 +3,12 @@ package kr.jclab.javautils.systeminformation.model;
 import java.util.Optional;
 
 import kr.jclab.javautils.systeminformation.smbios.DMIData;
+import kr.jclab.javautils.systeminformation.smbios.DmiParsable;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
 
 @lombok.Getter
 @lombok.ToString
-public class SmbiosBIOS extends SmbiosInformation {
+public class SmbiosBIOS implements SmbiosInformation {
     private final String vendor;
     private final String version;
     private final String date;
@@ -18,13 +20,21 @@ public class SmbiosBIOS extends SmbiosInformation {
         this.date = date;
     }
 
-    public static SmbiosInformation parse(DMIData data) {
-        final byte[] raw = data.getRaw();
+    public static class Parser implements DmiParsable<SmbiosBIOS> {
+        @Override
+        public int getDmiType() {
+            return DmiType.BIOS.getValue();
+        }
 
-        return SmbiosBIOS.builder()
-            .vendor(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
-            .version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
-            .date(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""))
-            .build();
+        @Override
+        public SmbiosBIOS parse(DMIData data, SmbiosInformation old) {
+            final byte[] raw = data.getRaw();
+
+            return SmbiosBIOS.builder()
+                    .vendor(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
+                    .version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
+                    .date(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""))
+                    .build();
+        }
     }
 }

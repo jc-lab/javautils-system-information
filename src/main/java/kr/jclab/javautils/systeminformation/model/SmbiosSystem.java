@@ -5,11 +5,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import kr.jclab.javautils.systeminformation.smbios.DMIData;
+import kr.jclab.javautils.systeminformation.smbios.DmiParsable;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
 import kr.jclab.javautils.systeminformation.util.ByteBufferUtil;
 
 @lombok.Getter
 @lombok.ToString
-public class SmbiosSystem extends SmbiosInformation {
+public class SmbiosSystem implements SmbiosInformation {
     private final String manufacturer;
     private final String productName;
     private final String version;
@@ -28,16 +30,24 @@ public class SmbiosSystem extends SmbiosInformation {
         this.uuid = uuid;
     }
 
-    public static SmbiosInformation parse(DMIData data) {
-        final byte[] raw = data.getRaw();
+    public static class Parser implements DmiParsable<SmbiosSystem> {
+        @Override
+        public int getDmiType() {
+            return DmiType.SYSTEM.getValue();
+        }
 
-        return SmbiosSystem.builder()
-            .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
-            .productName(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
-            .version(Optional.ofNullable(data.getDmiString(raw[0x2])).orElse(""))
-            .serialNumber(data.getDmiString(raw[0x3]))
-            .uuid(ByteBufferUtil.createUUIDFromBytes(Arrays.copyOfRange(raw, 0x4, 0x4 + 16)))
-            .skuNumber(data.getDmiString(raw[0x15]))
-            .build();
+        @Override
+        public SmbiosSystem parse(DMIData data, SmbiosInformation old) {
+            final byte[] raw = data.getRaw();
+
+            return SmbiosSystem.builder()
+                    .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
+                    .productName(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
+                    .version(Optional.ofNullable(data.getDmiString(raw[0x2])).orElse(""))
+                    .serialNumber(data.getDmiString(raw[0x3]))
+                    .uuid(ByteBufferUtil.createUUIDFromBytes(Arrays.copyOfRange(raw, 0x4, 0x4 + 16)))
+                    .skuNumber(data.getDmiString(raw[0x15]))
+                    .build();
+        }
     }
 }

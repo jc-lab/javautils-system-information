@@ -8,31 +8,34 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import kr.jclab.javautils.systeminformation.smbios.DMIData;
+import kr.jclab.javautils.systeminformation.smbios.DmiParsable;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
 
 @lombok.Getter
 @lombok.ToString
-@lombok.Builder
-@lombok.AllArgsConstructor
-public class SmbiosProcessor extends SmbiosInformation {
+public class SmbiosProcessor implements SmbiosInformation {
+    private final List<Processor> processors = new ArrayList<>();
 
-    private final List<Processor> processors;
+    public static class Parser implements DmiParsable<SmbiosProcessor> {
+        @Override
+        public int getDmiType() {
+            return DmiType.PROCESSOR.getValue();
+        }
 
-    public static SmbiosInformation parse(DMIData data) {
-        final byte[] raw = data.getRaw();
-
-        List<Processor> processors = new ArrayList<>();
-        processors.add(SmbiosProcessor.Processor.builder()
-            .socketDesignation(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
-            .id(getId(raw))
-            .type(getType(raw[1]))
-            .family(String.format("%02x", raw[2]))
-            .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""))
-            .version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
-            .build());
-
-        return SmbiosProcessor.builder()
-            .processors(processors)
-            .build();
+        @Override
+        public SmbiosProcessor parse(DMIData data, SmbiosInformation old) {
+            final byte[] raw = data.getRaw();
+            SmbiosProcessor object = (old == null) ? new SmbiosProcessor() : (SmbiosProcessor)old;
+            object.processors.add(SmbiosProcessor.Processor.builder()
+                    .socketDesignation(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
+                    .id(getId(raw))
+                    .type(getType(raw[1]))
+                    .family(String.format("%02x", raw[2]))
+                    .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""))
+                    .version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
+                    .build());
+            return object;
+        }
     }
 
     private static String getType(byte value) {
@@ -47,14 +50,6 @@ public class SmbiosProcessor extends SmbiosInformation {
         }
 
         return stringBuffer.toString();
-    }
-
-    @Override
-    public void addInformation(SmbiosInformation smbiosInformation) {
-        if (smbiosInformation instanceof SmbiosProcessor) {
-            SmbiosProcessor smbiosProcessor = (SmbiosProcessor)smbiosInformation;
-            this.processors.addAll(smbiosProcessor.getProcessors());
-        }
     }
 
     @lombok.ToString

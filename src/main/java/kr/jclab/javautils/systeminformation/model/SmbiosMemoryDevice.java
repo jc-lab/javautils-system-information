@@ -8,36 +8,39 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import kr.jclab.javautils.systeminformation.smbios.DMIData;
+import kr.jclab.javautils.systeminformation.smbios.DmiParsable;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
 import kr.jclab.javautils.systeminformation.util.ByteBufferUtil;
 
 @lombok.Getter
 @lombok.ToString
-@lombok.Builder
-@lombok.AllArgsConstructor
-public class SmbiosMemoryDevice extends SmbiosInformation {
+public class SmbiosMemoryDevice implements SmbiosInformation {
+    private final List<MemoryDevice> memoryDevices = new ArrayList<>();
 
-    private final List<MemoryDevice> memoryDevices;
+    public static class Parser implements DmiParsable<SmbiosMemoryDevice> {
+        @Override
+        public int getDmiType() {
+            return DmiType.MEMORY_DEVICE.getValue();
+        }
 
-    public static SmbiosInformation parse(DMIData data) {
-        final byte[] raw = data.getRaw();
-
-        List<MemoryDevice> memoryDevices = new ArrayList<>();
-        memoryDevices.add(MemoryDevice.builder()
-            .formFactor((int)raw[0xA])
-            .deviceLocator(data.getDmiString(raw[0xC]))
-            .bankLocator(data.getDmiString(raw[0xD]))
-            .memoryType(Type.valueFrom(raw[0xE]).getFullName())
-            .manufacturer(data.getDmiString(raw[0x13]))
-            .serialNumber(data.getDmiString(raw[0x14]))
-            .assetTag(data.getDmiString(raw[0x15]))
-            .partNumber(data.getDmiString(raw[0x16]))
-            .size(getSize(data))
-            .speed(getSpeed(data))
-            .build());
-
-        return SmbiosMemoryDevice.builder()
-            .memoryDevices(memoryDevices)
-            .build();
+        @Override
+        public SmbiosMemoryDevice parse(DMIData data, SmbiosInformation old) {
+            final byte[] raw = data.getRaw();
+            SmbiosMemoryDevice object = (old == null) ? new SmbiosMemoryDevice() : (SmbiosMemoryDevice)old;
+            object.memoryDevices.add(MemoryDevice.builder()
+                    .formFactor((int)raw[0xA])
+                    .deviceLocator(data.getDmiString(raw[0xC]))
+                    .bankLocator(data.getDmiString(raw[0xD]))
+                    .memoryType(Type.valueFrom(raw[0xE]).getFullName())
+                    .manufacturer(data.getDmiString(raw[0x13]))
+                    .serialNumber(data.getDmiString(raw[0x14]))
+                    .assetTag(data.getDmiString(raw[0x15]))
+                    .partNumber(data.getDmiString(raw[0x16]))
+                    .size(getSize(data))
+                    .speed(getSpeed(data))
+                    .build());
+            return object;
+        }
     }
 
     private static long getSize(DMIData data) {
@@ -65,14 +68,6 @@ public class SmbiosMemoryDevice extends SmbiosInformation {
         }
 
         return speed;
-    }
-
-    @Override
-    public void addInformation(SmbiosInformation smbiosInformation) {
-        if (smbiosInformation instanceof SmbiosMemoryDevice) {
-            SmbiosMemoryDevice smbiosProcessor = (SmbiosMemoryDevice)smbiosInformation;
-            this.memoryDevices.addAll(smbiosProcessor.getMemoryDevices());
-        }
     }
 
     @lombok.ToString

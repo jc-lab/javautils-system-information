@@ -3,10 +3,12 @@ package kr.jclab.javautils.systeminformation.model;
 import java.util.Optional;
 
 import kr.jclab.javautils.systeminformation.smbios.DMIData;
+import kr.jclab.javautils.systeminformation.smbios.DmiParsable;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
 
 @lombok.Getter
 @lombok.ToString
-public class SmbiosBaseboard extends SmbiosInformation {
+public class SmbiosBaseboard implements SmbiosInformation {
     private final String manufacturer;
     private final String productName;
     private final String version;
@@ -23,15 +25,23 @@ public class SmbiosBaseboard extends SmbiosInformation {
         this.assetTag = assetTag;
     }
 
-    public static SmbiosInformation parse(DMIData data) {
-        final byte[] raw = data.getRaw();
+    public static class Parser implements DmiParsable<SmbiosBaseboard> {
+        @Override
+        public int getDmiType() {
+            return DmiType.BASEBOARD.getValue();
+        }
 
-        return SmbiosBaseboard.builder()
-            .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
-            .productName(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
-            .version(Optional.ofNullable(data.getDmiString(raw[0x2])).orElse(""))
-            .serialNumber(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""))
-            .assetTag(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""))
-            .build();
+        @Override
+        public SmbiosBaseboard parse(DMIData data, SmbiosInformation old) {
+            final byte[] raw = data.getRaw();
+
+            return SmbiosBaseboard.builder()
+                    .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
+                    .productName(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
+                    .version(Optional.ofNullable(data.getDmiString(raw[0x2])).orElse(""))
+                    .serialNumber(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""))
+                    .assetTag(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""))
+                    .build();
+        }
     }
 }
