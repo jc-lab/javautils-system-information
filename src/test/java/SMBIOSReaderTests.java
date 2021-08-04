@@ -10,6 +10,7 @@ import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
 import kr.jclab.javautils.systeminformation.model.SmbiosMemoryDevice;
 import kr.jclab.javautils.systeminformation.model.SmbiosProcessor;
 import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
+import kr.jclab.javautils.systeminformation.platform.windows.WindowsSMBIOS;
 import kr.jclab.javautils.systeminformation.smbios.DmiType;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOSReader;
 
@@ -34,7 +35,7 @@ public class SMBIOSReaderTests {
         buffer = ByteBuffer
             .wrap(SMBIOSResources.WINDOWS_DMI_SAMPLES.get(0).getKey())
             .order(ByteOrder.LITTLE_ENDIAN);
-
+        WindowsSMBIOS.RawSMBIOSData rawSMBIOSData = new WindowsSMBIOS.RawSMBIOSData(buffer);
         windowsSampleReader.process(buffer, buffer.remaining());
     }
 
@@ -88,6 +89,8 @@ public class SMBIOSReaderTests {
     @Test
     public void getSmbiosInformation_withMemoryDeviceOfDmiType() {
         SmbiosMemoryDevice smbiosMemoryDevices = windowsSampleReader.getSmbiosInformation(DmiType.MEMORY_DEVICE);
+
+        assert 8 == smbiosMemoryDevices.getMemoryDevices().size();
 
         for (SmbiosMemoryDevice.MemoryDevice memoryDevice : smbiosMemoryDevices.getMemoryDevices()) {
             if (memoryDevice.getDeviceLocator().equalsIgnoreCase("DIMM_A1")) {
