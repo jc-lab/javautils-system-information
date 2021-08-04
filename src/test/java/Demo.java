@@ -15,11 +15,11 @@ public class Demo {
         SMBIOSReader reader = new SMBIOSReader();
         smbios.read(reader);
 
-        System.out.println("system : " + reader.getSmbiosStore().get(DmiType.SYSTEM));
-        System.out.println("baseboard : " + reader.getSmbiosStore().get(DmiType.BASEBOARD));
-        System.out.println("bios : " + reader.getSmbiosStore().get(DmiType.BIOS));
-        System.out.println("processor : " + reader.getSmbiosStore().get(DmiType.PROCESSOR));
-        System.out.println("memory : " + reader.getSmbiosStore().get(DmiType.MEMORY_DEVICE));
+        System.out.println("system : " + reader.getSmbiosInformation(DmiType.SYSTEM));
+        System.out.println("baseboard : " + reader.getSmbiosInformation(DmiType.BASEBOARD));
+        System.out.println("bios : " + reader.getSmbiosInformation(DmiType.BIOS));
+        System.out.println("processor : " + reader.getSmbiosInformation(DmiType.PROCESSOR));
+        System.out.println("memory : " + reader.getSmbiosInformation(DmiType.MEMORY_DEVICE));
 
         // ==================== SystemInformation ====================
         SystemInformation systemInformation = new SystemInformation();

@@ -1,35 +1,28 @@
 package kr.jclab.javautils.systeminformation.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import kr.jclab.javautils.systeminformation.smbios.DMIData;
 import kr.jclab.javautils.systeminformation.util.ByteBufferUtil;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 @lombok.Getter
 @lombok.ToString
 @lombok.Builder
 @lombok.AllArgsConstructor
-public class SmbiosMemoryDevice implements SmbiosInformation {
-    private final String bankLocator;
-    private final String deviceLocator;
-    private final Integer formFactor;
-    private final Long size;
-    private final String manufacturer;
-    private final String serialNumber;
-    private final String partNumber;
-    private final String assetTag;
-    private final String memoryType;
-    private final Integer speed;
+public class SmbiosMemoryDevice extends SmbiosInformation {
+
+    private final List<MemoryDevice> memoryDevices;
 
     public static SmbiosInformation parse(DMIData data) {
         final byte[] raw = data.getRaw();
 
-        return SmbiosMemoryDevice.builder()
+        List<MemoryDevice> memoryDevices = new ArrayList<>();
+        memoryDevices.add(MemoryDevice.builder()
             .formFactor((int)raw[0xA])
             .deviceLocator(data.getDmiString(raw[0xC]))
             .bankLocator(data.getDmiString(raw[0xD]))
@@ -40,6 +33,10 @@ public class SmbiosMemoryDevice implements SmbiosInformation {
             .partNumber(data.getDmiString(raw[0x16]))
             .size(getSize(data))
             .speed(getSpeed(data))
+            .build());
+
+        return SmbiosMemoryDevice.builder()
+            .memoryDevices(memoryDevices)
             .build();
     }
 
@@ -70,8 +67,33 @@ public class SmbiosMemoryDevice implements SmbiosInformation {
         return speed;
     }
 
-    @Getter
-    @AllArgsConstructor
+    @Override
+    public void addInformation(SmbiosInformation smbiosInformation) {
+        if (smbiosInformation instanceof SmbiosMemoryDevice) {
+            SmbiosMemoryDevice smbiosProcessor = (SmbiosMemoryDevice)smbiosInformation;
+            this.memoryDevices.addAll(smbiosProcessor.getMemoryDevices());
+        }
+    }
+
+    @lombok.ToString
+    @lombok.Getter
+    @lombok.Builder
+    @lombok.AllArgsConstructor
+    public static class MemoryDevice {
+        private final String bankLocator;
+        private final String deviceLocator;
+        private final Integer formFactor;
+        private final Long size;
+        private final String manufacturer;
+        private final String serialNumber;
+        private final String partNumber;
+        private final String assetTag;
+        private final String memoryType;
+        private final Integer speed;
+    }
+
+    @lombok.Getter
+    @lombok.AllArgsConstructor
     public enum Type {
         Other(0x1, "Other"),
         Unknown(0x2, "Unknown"),

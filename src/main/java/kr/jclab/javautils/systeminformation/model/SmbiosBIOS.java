@@ -6,7 +6,7 @@ import kr.jclab.javautils.systeminformation.smbios.DMIData;
 
 @lombok.Getter
 @lombok.ToString
-public class SmbiosBIOS implements SmbiosInformation {
+public class SmbiosBIOS extends SmbiosInformation {
     private final String vendor;
     private final String version;
     private final String date;

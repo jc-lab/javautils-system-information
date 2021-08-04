@@ -4,6 +4,7 @@ import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
 import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
 import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
 
+@Deprecated
 public class DefaultSmbiosData implements SmbiosData {
     private SmbiosBaseboard baseboardInformation;
     private SmbiosBIOS biosInformation;

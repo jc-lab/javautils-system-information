@@ -1,5 +1,6 @@
 package kr.jclab.javautils.systeminformation.model;
 
-public interface SmbiosInformation {
+public abstract class SmbiosInformation {
 
+    public void addInformation(SmbiosInformation smbiosInformation) {}
 }

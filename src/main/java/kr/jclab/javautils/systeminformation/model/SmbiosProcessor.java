@@ -1,36 +1,37 @@
 package kr.jclab.javautils.systeminformation.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import kr.jclab.javautils.systeminformation.smbios.DMIData;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 @lombok.Getter
 @lombok.ToString
 @lombok.Builder
 @lombok.AllArgsConstructor
-public class SmbiosProcessor implements SmbiosInformation {
-    private final String socketDesignation;
-    private final String id;
-    private final String type;
-    private final String family;
-    private final String manufacturer;
-    private final String version;
+public class SmbiosProcessor extends SmbiosInformation {
+
+    private final List<Processor> processors;
 
     public static SmbiosInformation parse(DMIData data) {
         final byte[] raw = data.getRaw();
 
-        return SmbiosProcessor.builder()
+        List<Processor> processors = new ArrayList<>();
+        processors.add(SmbiosProcessor.Processor.builder()
             .socketDesignation(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
             .id(getId(raw))
             .type(getType(raw[1]))
             .family(String.format("%02x", raw[2]))
             .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""))
             .version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
+            .build());
+
+        return SmbiosProcessor.builder()
+            .processors(processors)
             .build();
     }
 
@@ -48,8 +49,29 @@ public class SmbiosProcessor implements SmbiosInformation {
         return stringBuffer.toString();
     }
 
-    @Getter
-    @AllArgsConstructor
+    @Override
+    public void addInformation(SmbiosInformation smbiosInformation) {
+        if (smbiosInformation instanceof SmbiosProcessor) {
+            SmbiosProcessor smbiosProcessor = (SmbiosProcessor)smbiosInformation;
+            this.processors.addAll(smbiosProcessor.getProcessors());
+        }
+    }
+
+    @lombok.ToString
+    @lombok.Getter
+    @lombok.Builder
+    @lombok.AllArgsConstructor
+    public static class Processor {
+        private final String socketDesignation;
+        private final String id;
+        private final String type;
+        private final String family;
+        private final String manufacturer;
+        private final String version;
+    }
+
+    @lombok.Getter
+    @lombok.AllArgsConstructor
     public enum Type {
         OTHER(0x1, "Other"),
         UNKNOWN(0x2, "Unknown"),
