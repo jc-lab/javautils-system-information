@@ -2,6 +2,7 @@ import kr.jclab.javautils.systeminformation.SystemInformation;
 import kr.jclab.javautils.systeminformation.model.OSArch;
 import kr.jclab.javautils.systeminformation.model.OSInformation;
 import kr.jclab.javautils.systeminformation.model.OSType;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOS;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOSReader;
 
@@ -14,9 +15,11 @@ public class Demo {
         SMBIOSReader reader = new SMBIOSReader();
         smbios.read(reader);
 
-        System.out.println("system : " + reader.getSystemInformation());
-        System.out.println("baseboard : " + reader.getBaseboardInformation());
-        System.out.println("bios : " + reader.getBiosInformation());
+        System.out.println("system : " + reader.getSmbiosInformation(DmiType.SYSTEM));
+        System.out.println("baseboard : " + reader.getSmbiosInformation(DmiType.BASEBOARD));
+        System.out.println("bios : " + reader.getSmbiosInformation(DmiType.BIOS));
+        System.out.println("processor : " + reader.getSmbiosInformation(DmiType.PROCESSOR));
+        System.out.println("memory : " + reader.getSmbiosInformation(DmiType.MEMORY_DEVICE));
 
         // ==================== SystemInformation ====================
         SystemInformation systemInformation = new SystemInformation();

@@ -3,9 +3,9 @@ package kr.jclab.javautils.systeminformation.platform.windows;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import kr.jclab.javautils.systeminformation.exception.NativeApiErrorException;
-import kr.jclab.javautils.systeminformation.model.SmbiosBIOSInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosBaseboardInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosSystemInformation;
+import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
+import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
+import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOSBase;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOSReader;
 
@@ -17,9 +17,9 @@ public class WindowsSMBIOS implements SMBIOSBase {
     private final Kernel32Ex kernel32 = Kernel32Ex.INSTANCE;
 
     private boolean perfect = false;
-    private SmbiosBIOSInformation biosInformation = null;
-    private SmbiosSystemInformation systemInformation = null;
-    private SmbiosBaseboardInformation baseboardInformation = null;
+    private SmbiosBIOS biosInformation = null;
+    private SmbiosSystem systemInformation = null;
+    private SmbiosBaseboard baseboardInformation = null;
 
     @lombok.Getter
     public static class RawSMBIOSData {

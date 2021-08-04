@@ -1,58 +1,109 @@
-import kr.jclab.javautils.systeminformation.platform.windows.WindowsSMBIOS;
-import kr.jclab.javautils.systeminformation.smbios.SMBIOSReader;
-import org.junit.jupiter.api.Test;
-
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
+import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
+import kr.jclab.javautils.systeminformation.model.SmbiosMemoryDevice;
+import kr.jclab.javautils.systeminformation.model.SmbiosProcessor;
+import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
+import kr.jclab.javautils.systeminformation.platform.windows.WindowsSMBIOS;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
+import kr.jclab.javautils.systeminformation.smbios.SMBIOSReader;
+
 public class SMBIOSReaderTests {
-    @Test
-    public void smbiosDecodeTestSample01() throws Exception {
-        SMBIOSReader reader = new SMBIOSReader();
+
+    static SMBIOSReader linuxSampleReader;
+    static SMBIOSReader windowsSampleReader;
+
+    @BeforeAll
+    static void setup() throws IOException {
+        /* LINUX */
+        linuxSampleReader = new SMBIOSReader();
 
         ByteBuffer buffer = ByteBuffer
-                .wrap(SMBIOSResources.DMI_SAMPLES.get(0).getKey())
-                .order(ByteOrder.LITTLE_ENDIAN);
-        reader.process(buffer, buffer.remaining());
+            .wrap(SMBIOSResources.DMI_SAMPLES.get(0).getKey())
+            .order(ByteOrder.LITTLE_ENDIAN);
+        linuxSampleReader.process(buffer, buffer.remaining());
 
-        assert "Intel Corporation".equals(reader.getBaseboardInformation().getManufacturer());
-        assert "440BX Desktop Reference Platform".equals(reader.getBaseboardInformation().getProductName());
-        assert "None".equals(reader.getBaseboardInformation().getVersion());
-        assert "None".equals(reader.getBaseboardInformation().getSerialNumber());
-        assert "".equalsIgnoreCase(reader.getBaseboardInformation().getAssetTag());
-        assert "Phoenix Technologies LTD".equals(reader.getBiosInformation().getVendor());
-        assert "6.00".equals(reader.getBiosInformation().getVersion());
-        assert "02/27/2020".equals(reader.getBiosInformation().getDate());
-        assert "VMware, Inc.".equals(reader.getSystemInformation().getManufacturer());
-        assert "VMware Virtual Platform".equals(reader.getSystemInformation().getProductName());
-        assert "None".equals(reader.getSystemInformation().getVersion());
-        assert "VMware-56 4d e5 9d 0a 71 05 5a-6f ec e7 09 01 dd 1f 18".equals(reader.getSystemInformation().getSerialNumber());
-        assert "9DE54D56-710A-5A05-6FEC-E70901DD1F18".equalsIgnoreCase(reader.getSystemInformation().getUuid().toString());
+        /* WINDOWS */
+        windowsSampleReader = new SMBIOSReader();
+
+        buffer = ByteBuffer
+            .wrap(SMBIOSResources.WINDOWS_DMI_SAMPLES.get(0).getKey())
+            .order(ByteOrder.LITTLE_ENDIAN);
+        WindowsSMBIOS.RawSMBIOSData rawSMBIOSData = new WindowsSMBIOS.RawSMBIOSData(buffer);
+        windowsSampleReader.process(buffer, buffer.remaining());
     }
 
     @Test
-    public void smbiosDecodeTestWindowsSample01() throws Exception {
-        SMBIOSReader reader = new SMBIOSReader();
+    public void getSmbiosInformation_withBaseboardOfDmiType() {
+        SmbiosBaseboard smbiosBaseboard = windowsSampleReader.getSmbiosInformation(DmiType.BASEBOARD);
 
-        ByteBuffer buffer = ByteBuffer
-                .wrap(SMBIOSResources.WINDOWS_DMI_SAMPLES.get(0).getKey())
-                .order(ByteOrder.LITTLE_ENDIAN);
-        WindowsSMBIOS.RawSMBIOSData rawSMBIOSData = new WindowsSMBIOS.RawSMBIOSData(buffer);
-        reader.process(buffer, buffer.remaining());
+        assert "MSI".equals(smbiosBaseboard.getManufacturer());
+        assert "X99A RAIDER (MS-7885)".equals(smbiosBaseboard.getProductName());
+        assert "5.0".equals(smbiosBaseboard.getVersion());
+        assert "To be filled by O.E.M.".equals(smbiosBaseboard.getSerialNumber());
+        assert "To be filled by O.E.M.".equalsIgnoreCase(smbiosBaseboard.getAssetTag());
+    }
 
-        assert "MSI".equals(reader.getBaseboardInformation().getManufacturer());
-        assert "X99A RAIDER (MS-7885)".equals(reader.getBaseboardInformation().getProductName());
-        assert "5.0".equals(reader.getBaseboardInformation().getVersion());
-        assert "To be filled by O.E.M.".equals(reader.getBaseboardInformation().getSerialNumber());
-        assert "To be filled by O.E.M.".equalsIgnoreCase(reader.getBaseboardInformation().getAssetTag());
-        assert "American Megatrends Inc.".equals(reader.getBiosInformation().getVendor());
-        assert "P.30".equals(reader.getBiosInformation().getVersion());
-        assert "04/12/2016".equals(reader.getBiosInformation().getDate());
-        assert "MSI".equals(reader.getSystemInformation().getManufacturer());
-        assert "MS-7885".equals(reader.getSystemInformation().getProductName());
-        assert "5.0".equals(reader.getSystemInformation().getVersion());
-        assert "Default string".equals(reader.getSystemInformation().getSerialNumber());
-        assert "Default string".equals(reader.getSystemInformation().getSkuNumber());
-        assert "aaaaaaaa-aaaa-aaaa-aaaa-4ccc6a25cded".equalsIgnoreCase(reader.getSystemInformation().getUuid().toString());
+    @Test
+    public void getSmbiosInformation_withBiosOfDmiType() {
+        SmbiosBIOS smbiosBIOS =  windowsSampleReader.getSmbiosInformation(DmiType.BIOS);
+
+        assert "American Megatrends Inc.".equals(smbiosBIOS.getVendor());
+        assert "P.30".equals(smbiosBIOS.getVersion());
+        assert "04/12/2016".equals(smbiosBIOS.getDate());
+    }
+
+    @Test
+    public void getSmbiosInformation_withSystemOfDmiType() {
+        SmbiosSystem smbiosSystem =  windowsSampleReader.getSmbiosInformation(DmiType.SYSTEM);
+
+        assert "MSI".equals(smbiosSystem.getManufacturer());
+        assert "MS-7885".equals(smbiosSystem.getProductName());
+        assert "5.0".equals(smbiosSystem.getVersion());
+        assert "Default string".equals(smbiosSystem.getSerialNumber());
+        assert "Default string".equals(smbiosSystem.getSkuNumber());
+        assert "aaaaaaaa-aaaa-aaaa-aaaa-4ccc6a25cded".equalsIgnoreCase(smbiosSystem.getUuid().toString());
+    }
+
+    @Test
+    public void getSmbiosInformation_withProcessorOfDmiType() {
+        SmbiosProcessor smbiosProcessors = windowsSampleReader.getSmbiosInformation(DmiType.PROCESSOR);
+
+        for (SmbiosProcessor.Processor processor : smbiosProcessors.getProcessors()) {
+            if (processor.getSocketDesignation().equalsIgnoreCase("SOCKET 0")) {
+                assert "F2060300FFFBEBBF".equalsIgnoreCase(processor.getId());
+                assert "Central Processor".equalsIgnoreCase(processor.getType());
+                assert "b3".equals(processor.getFamily());
+                assert "Intel".equalsIgnoreCase(processor.getManufacturer());
+                assert "Intel(R) Core(TM) i7-5960X CPU @ 3.00GHz".equalsIgnoreCase(processor.getVersion());
+            }
+        }
+    }
+
+    @Test
+    public void getSmbiosInformation_withMemoryDeviceOfDmiType() {
+        SmbiosMemoryDevice smbiosMemoryDevices = windowsSampleReader.getSmbiosInformation(DmiType.MEMORY_DEVICE);
+
+        assert 8 == smbiosMemoryDevices.getMemoryDevices().size();
+
+        for (SmbiosMemoryDevice.MemoryDevice memoryDevice : smbiosMemoryDevices.getMemoryDevices()) {
+            if (memoryDevice.getDeviceLocator().equalsIgnoreCase("DIMM_A1")) {
+                assert "NODE 1".equalsIgnoreCase(memoryDevice.getBankLocator());
+                assert 9 == memoryDevice.getFormFactor();
+                assert 8589934592L == memoryDevice.getSize();
+                assert "Samsung".equalsIgnoreCase(memoryDevice.getManufacturer());
+                assert "9246D640".equalsIgnoreCase(memoryDevice.getSerialNumber());
+                assert "M378A1G43EB1-CPB".equalsIgnoreCase(memoryDevice.getPartNumber());
+                assert "DIMM_A1_AssetTag".equalsIgnoreCase(memoryDevice.getAssetTag());
+                assert "DDR4".equalsIgnoreCase(memoryDevice.getMemoryType());
+                assert 2133 == memoryDevice.getSpeed();
+            }
+        }
     }
 }

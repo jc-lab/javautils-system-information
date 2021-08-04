@@ -93,6 +93,6 @@ public class DMIData {
 			//return null;
 		}
 		String s = this.strings.get(id - 1);
-		return s.equalsIgnoreCase(" ") ? "" : s;
+		return s.equalsIgnoreCase(" ") ? "" : s.trim();
 	}
 }

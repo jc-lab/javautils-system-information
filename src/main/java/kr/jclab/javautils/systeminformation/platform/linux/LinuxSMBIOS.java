@@ -1,9 +1,10 @@
 package kr.jclab.javautils.systeminformation.platform.linux;
 
 import kr.jclab.javautils.systeminformation.exception.NativeApiErrorException;
-import kr.jclab.javautils.systeminformation.model.SmbiosBIOSInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosBaseboardInformation;
-import kr.jclab.javautils.systeminformation.model.SmbiosSystemInformation;
+import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
+import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
+import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
+import kr.jclab.javautils.systeminformation.smbios.DmiType;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOSBase;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOSReader;
 
@@ -22,9 +23,6 @@ public class LinuxSMBIOS implements SMBIOSBase {
         } else {
             if (procfsReader.load()) {
                 reader.setPerfect(false);
-                reader.setBaseboardInformation(procfsReader.getBaseboardInformation());
-                reader.setBiosInformation(procfsReader.getBiosInformation());
-                reader.setSystemInformation(procfsReader.getSystemInformation());
             } else {
                 throw new NativeApiErrorException("Permission denied");
             }
@@ -33,9 +31,9 @@ public class LinuxSMBIOS implements SMBIOSBase {
 
     private static class ProcfsReader {
         private int dirtyCount = 0;
-        private SmbiosBIOSInformation biosInformation = null;
-        private SmbiosSystemInformation systemInformation = null;
-        private SmbiosBaseboardInformation baseboardInformation = null;
+        private SmbiosBIOS biosInformation = null;
+        private SmbiosSystem systemInformation = null;
+        private SmbiosBaseboard baseboardInformation = null;
 
         public int getDirtyCount() {
             return this.dirtyCount;
@@ -66,12 +64,12 @@ public class LinuxSMBIOS implements SMBIOSBase {
 
         boolean load() {
             File dir = new File("/sys/devices/virtual/dmi/id/");
-            this.biosInformation = SmbiosBIOSInformation.builder()
+            this.biosInformation = SmbiosBIOS.builder()
                     .vendor(simpleReadFile(new File(dir, "bios_vendor")))
                     .date(simpleReadFile(new File(dir, "bios_date")))
                     .version(simpleReadFile(new File(dir, "bios_version")))
                     .build();
-            this.systemInformation = SmbiosSystemInformation.builder()
+            this.systemInformation = SmbiosSystem.builder()
                     .manufacturer(simpleReadFile(new File(dir, "sys_vendor")))
                     .productName(simpleReadFile(new File(dir, "product_name")))
                     .version(simpleReadFile(new File(dir, "product_version")))
@@ -79,7 +77,7 @@ public class LinuxSMBIOS implements SMBIOSBase {
                     .uuid(readUuidFile(new File(dir, "product_uuid")))
                     .skuNumber(simpleReadFile(new File(dir, "product_sku")))
                     .build();
-            this.baseboardInformation = SmbiosBaseboardInformation.builder()
+            this.baseboardInformation = SmbiosBaseboard.builder()
                     .manufacturer(simpleReadFile(new File(dir, "board_vendor")))
                     .productName(simpleReadFile(new File(dir, "board_name")))
                     .version(simpleReadFile(new File(dir, "board_version")))
@@ -89,15 +87,15 @@ public class LinuxSMBIOS implements SMBIOSBase {
             return dir.isDirectory();
         }
 
-        public SmbiosBIOSInformation getBiosInformation() {
+        public SmbiosBIOS getBiosInformation() {
             return biosInformation;
         }
 
-        public SmbiosSystemInformation getSystemInformation() {
+        public SmbiosSystem getSystemInformation() {
             return systemInformation;
         }
 
-        public SmbiosBaseboardInformation getBaseboardInformation() {
+        public SmbiosBaseboard getBaseboardInformation() {
             return baseboardInformation;
         }
     }
