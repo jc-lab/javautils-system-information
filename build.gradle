@@ -56,6 +56,10 @@ signing {
     sign configurations.archives
 }
 
+tasks.withType(Sign) {
+    onlyIf { project.hasProperty('signing.gnupg.keyName') || project.hasProperty('signing.keyId') }
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
