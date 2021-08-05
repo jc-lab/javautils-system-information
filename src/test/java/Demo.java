@@ -18,6 +18,7 @@ public class Demo {
         System.out.println("system : " + reader.getSmbiosInformation(DmiType.SYSTEM));
         System.out.println("baseboard : " + reader.getSmbiosInformation(DmiType.BASEBOARD));
         System.out.println("bios : " + reader.getSmbiosInformation(DmiType.BIOS));
+        System.out.println("chassis : " + reader.getSmbiosInformation(DmiType.CHASSIS));
         System.out.println("processor : " + reader.getSmbiosInformation(DmiType.PROCESSOR));
         System.out.println("memory : " + reader.getSmbiosInformation(DmiType.MEMORY_DEVICE));
 

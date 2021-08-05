@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import kr.jclab.javautils.systeminformation.model.SmbiosBIOS;
 import kr.jclab.javautils.systeminformation.model.SmbiosBaseboard;
+import kr.jclab.javautils.systeminformation.model.SmbiosChassis;
 import kr.jclab.javautils.systeminformation.model.SmbiosMemoryDevice;
 import kr.jclab.javautils.systeminformation.model.SmbiosProcessor;
 import kr.jclab.javautils.systeminformation.model.SmbiosSystem;
@@ -69,6 +70,18 @@ public class SMBIOSReaderTests {
         assert "Default string".equals(smbiosSystem.getSerialNumber());
         assert "Default string".equals(smbiosSystem.getSkuNumber());
         assert "aaaaaaaa-aaaa-aaaa-aaaa-4ccc6a25cded".equalsIgnoreCase(smbiosSystem.getUuid().toString());
+    }
+
+    @Test
+    public void getSmbiosInformation_withChassisOfDmiType() {
+        SmbiosChassis smbiosChassis =  windowsSampleReader.getSmbiosInformation(DmiType.CHASSIS);
+
+        assert "MSI".equals(smbiosChassis.getManufacturer());
+        assert "Desktop".equals(smbiosChassis.getType());
+        assert "Not Present".equals(smbiosChassis.getLock());
+        assert "5.0".equals(smbiosChassis.getVersion());
+        assert "Default string".equals(smbiosChassis.getSerialNumber());
+        assert "Default string".equals(smbiosChassis.getAssetTag());
     }
 
     @Test
