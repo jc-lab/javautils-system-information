@@ -57,6 +57,7 @@ public class SMBIOSReader {
                     .addParser(new SmbiosSystem.Parser())
                     .addParser(new SmbiosMemoryDevice.Parser())
                     .addParser(new SmbiosProcessor.Parser())
+                    .addParser(new SmbiosChassis.Parser())
                     .build();
         }
     }
