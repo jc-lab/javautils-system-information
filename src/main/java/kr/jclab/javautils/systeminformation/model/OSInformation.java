@@ -68,8 +68,8 @@ public class OSInformation {
             return releaseId;
         }
 
-        public int getCurrentBuildNumber() { return currentBuildNumber; }
-
-
+        public int getCurrentBuildNumber() {
+            return currentBuildNumber;
+        }
     }
 }
