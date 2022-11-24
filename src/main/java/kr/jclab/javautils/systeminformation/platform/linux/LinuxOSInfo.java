@@ -34,6 +34,12 @@ public class LinuxOSInfo implements OSInfoBase {
     }
 
     @Override
+    public boolean isRealOsArchIs64Bit() {
+        String machineArch = getMachineArchOrNull();
+        return "x86_64".equals(machineArch);
+    }
+
+    @Override
     public OSInformation read() throws IOException {
         final File machineIdFile = new File("/etc/machine-id");
         final File osReleaseFile = new File("/etc/os-release");
@@ -95,5 +101,20 @@ public class LinuxOSInfo implements OSInfoBase {
         }
 
         return builder.build();
+    }
+
+    /**
+     * Get architecture using operating system tools. Currently only Linux is supported (using uname).
+     */
+    private static String getMachineArchOrNull() {
+        String archOrNull = null;
+        try {
+            Process exec = Runtime.getRuntime().exec("uname -m");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(exec.getInputStream()));
+            archOrNull = reader.readLine();
+            reader.close();
+        } catch (Exception ignored) {
+        }
+        return archOrNull;
     }
 }

@@ -41,13 +41,41 @@ public class SystemInformation {
         return new OSType(type, name);
     }
 
+    /**
+     * @deprecated Use getExecutionOSArch instead of.
+     */
+    @Deprecated()
     public OSArch getOSArch() {
+        return getExecutionOSArch();
+    }
+
+
+    /**
+     * affected architecture
+     *
+     * 32-bit JRE on 64-bit OS is recognized as 32-bit.
+     */
+    public OSArch getExecutionOSArch() {
         OSArch.PredefinedType type = OSArch.PredefinedType.Unknown;
         if (ArchUtils.getProcessor().isX86()) {
             if (ArchUtils.getProcessor().is32Bit()) {
                 type = OSArch.PredefinedType.X86_32;
             } else if (ArchUtils.getProcessor().is64Bit()) {
                 type = OSArch.PredefinedType.X86_64;
+            }
+        } else if (SystemUtils.OS_ARCH.equalsIgnoreCase("aarch64")) {
+            type = OSArch.PredefinedType.AArch64;
+        }
+        return new OSArch(type, SystemUtils.OS_ARCH);
+    }
+
+    public OSArch getRealOSArch() {
+        OSArch.PredefinedType type = OSArch.PredefinedType.Unknown;
+        if (ArchUtils.getProcessor().isX86()) {
+            if (ArchUtils.getProcessor().is64Bit() || osInfoReader.isRealOsArchIs64Bit()) {
+                type = OSArch.PredefinedType.X86_64;
+            } else if (ArchUtils.getProcessor().is32Bit()) {
+                type = OSArch.PredefinedType.X86_32;
             }
         } else if (SystemUtils.OS_ARCH.equalsIgnoreCase("aarch64")) {
             type = OSArch.PredefinedType.AArch64;

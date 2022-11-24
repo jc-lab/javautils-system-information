@@ -1,9 +1,12 @@
 package kr.jclab.javautils.systeminformation.platform.windows;
 
 import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinReg;
+import com.sun.jna.ptr.IntByReference;
 import kr.jclab.javautils.systeminformation.model.OSInformation;
 import kr.jclab.javautils.systeminformation.osinfo.OSInfoBase;
+import org.apache.commons.lang3.ArchUtils;
 
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -13,8 +16,20 @@ public class WindowsOSInfo implements OSInfoBase {
     private final Pattern WINDOWS_10_PATTERN = Pattern.compile("Windows 10", Pattern.CASE_INSENSITIVE);
 
     @Override
+    public boolean isRealOsArchIs64Bit() {
+        if (ArchUtils.getProcessor().is64Bit()) {
+            return true;
+        }
+
+        Kernel32 kernel32 = Kernel32.INSTANCE;
+        IntByReference result = new IntByReference();
+        kernel32.IsWow64Process(kernel32.GetCurrentProcess(), result);
+        return result.getValue() != 0;
+    }
+
+    @Override
     public OSInformation read() {
-        TreeMap<String, Object> objects =  Advapi32Util.registryGetValues(WinReg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion");
+        TreeMap<String, Object> objects = Advapi32Util.registryGetValues(WinReg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion");
         Object installDateObj = objects.get("InstallDate");
         Object productNameObj = objects.get("ProductName");
         Object releaseIdObj = objects.get("ReleaseId");
@@ -48,7 +63,6 @@ public class WindowsOSInfo implements OSInfoBase {
                 .installedAt(installDate)
                 .productName(productName)
                 .releaseId((String)releaseIdObj)
-                .currentBuildNumber(currentBuildNumber)
                 .build();
     }
 }
