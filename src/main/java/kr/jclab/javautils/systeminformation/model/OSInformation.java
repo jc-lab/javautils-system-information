@@ -4,6 +4,7 @@ import java.util.Map;
 
 @lombok.Getter
 @lombok.ToString
+@lombok.Builder(builderClassName = "Builder")
 public class OSInformation {
     /**
      * Windows: windows
@@ -34,8 +35,6 @@ public class OSInformation {
      */
     private final String releaseId;
 
-    private final int currentBuildNumber;
-
     /**
      * install date (unix time, milliseconds)
      */
@@ -43,17 +42,7 @@ public class OSInformation {
 
     private final Map<String, String> linuxOsRelease;
 
-    @lombok.Builder(builderClassName = "Builder")
-    public OSInformation(String distFamily, String distBaseVersion, String identity, String productName, String releaseId, int currentBuildNumber, Long installedAt, Map<String, String> linuxOsRelease) {
-        this.distFamily = distFamily;
-        this.distBaseVersion = distBaseVersion;
-        this.identity = identity;
-        this.productName = productName;
-        this.releaseId = releaseId;
-        this.currentBuildNumber = currentBuildNumber;
-        this.installedAt = installedAt;
-        this.linuxOsRelease = linuxOsRelease;
-    }
+    private final Map<String, String> windowsOsCurrentVersion;
 
     public static class Builder {
         public String getDistFamily() {
@@ -66,10 +55,6 @@ public class OSInformation {
 
         public String getReleaseId() {
             return releaseId;
-        }
-
-        public int getCurrentBuildNumber() {
-            return currentBuildNumber;
         }
     }
 }

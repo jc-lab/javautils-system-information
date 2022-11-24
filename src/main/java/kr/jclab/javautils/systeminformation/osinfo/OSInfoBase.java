@@ -6,4 +6,5 @@ import java.io.IOException;
 
 public interface OSInfoBase {
     OSInformation read() throws IOException;
+    boolean isRealOsArchIs64Bit();
 }
