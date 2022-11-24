@@ -10,6 +10,7 @@ import kr.jclab.javautils.systeminformation.smbios.SMBIOSBase;
 import kr.jclab.javautils.systeminformation.smbios.SMBIOSReader;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -58,7 +59,7 @@ public class WindowsSMBIOS implements SMBIOSBase {
         if (bufferSize < 0) {
             throw new NativeApiErrorException("buffer size < 0");
         }
-        buffer.limit(bufferSize);
+        ((Buffer)buffer).limit(bufferSize);
 
         final RawSMBIOSData rawSMBIOSData = new RawSMBIOSData(buffer);
         reader.process(buffer, rawSMBIOSData.getLength());
