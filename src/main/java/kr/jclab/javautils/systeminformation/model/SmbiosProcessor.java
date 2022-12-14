@@ -32,7 +32,7 @@ public class SmbiosProcessor implements SmbiosInformation {
                     .type(getType(raw[1]))
                     .family(String.format("%02x", raw[2]))
                     .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""))
-                    .version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
+                    .version(Optional.ofNullable(data.getDmiString(raw[0xc])).orElse(""))
                     .build());
             return object;
         }
