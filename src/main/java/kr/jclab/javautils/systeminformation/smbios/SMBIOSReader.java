@@ -25,12 +25,15 @@ public class SMBIOSReader {
 
     public void process(ByteBuffer buffer, int totalLength) throws IOException {
         while (buffer.hasRemaining() && buffer.position() < totalLength) {
+            int pos = buffer.position();
             final DMIData data = new DMIData(buffer);
             if (data.isEndMarked()) {
                 break;
             }
             final DMIHeader header = data.getHeader();
             if (header.getHandle() != (short)0xffff && header.getLength() > 0) {
+                // FIXME(debug): remove it
+                System.out.println("pos : " + pos);
                 dmiParse(header, data);
             }
         }

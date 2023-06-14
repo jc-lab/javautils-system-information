@@ -92,7 +92,12 @@ public class DMIData {
 			return "";
 			//return null;
 		}
-		String s = this.strings.get(id - 1);
-		return s.equalsIgnoreCase(" ") ? "" : s.trim();
+		try {
+			String s = this.strings.get(id - 1);
+			return s.equalsIgnoreCase(" ") ? "" : s.trim();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 }
