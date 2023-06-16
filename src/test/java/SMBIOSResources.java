@@ -9,8 +9,8 @@ import java.util.Map;
 
 public class SMBIOSResources {
     public static Base64.Decoder b64Decoder = Base64.getDecoder();
-    public static final ArrayList<Map.Entry<byte[], Object>> DMI_SAMPLES;
-    public static final ArrayList<Map.Entry<byte[], Object>> WINDOWS_DMI_SAMPLES;
+    public static final ArrayList<Map.Entry<String, byte[]>> DMI_SAMPLES;
+    public static final ArrayList<Map.Entry<String, byte[]>> WINDOWS_DMI_SAMPLES;
 
     private static byte[] readBase64Resource(String path) {
         try (InputStream is = SMBIOSResources.class.getResourceAsStream(path)) {
@@ -28,14 +28,19 @@ public class SMBIOSResources {
         DMI_SAMPLES = new ArrayList<>();
         {
             byte[] data = readBase64Resource("/dmi-sample-01.txt");
-            DMI_SAMPLES.add(new AbstractMap.SimpleEntry<>(data, null));
+            DMI_SAMPLES.add(new AbstractMap.SimpleEntry<>("dmi-sample-01.txt", data));
+        }
+
+        {
+            byte[] data = readBase64Resource("/dmi-sample-02.txt");
+            DMI_SAMPLES.add(new AbstractMap.SimpleEntry<>("dmi-sample-02.txt", data));
         }
 
         WINDOWS_DMI_SAMPLES = new ArrayList<>();
         {
             // SMBIOS 3.0
             byte[] data = readBase64Resource("/windows-dmi-sample-01.txt");
-            WINDOWS_DMI_SAMPLES.add(new AbstractMap.SimpleEntry<>(data, null));
+            WINDOWS_DMI_SAMPLES.add(new AbstractMap.SimpleEntry<>("windows-dmi-sample-01.txt", data));
         }
     }
 }

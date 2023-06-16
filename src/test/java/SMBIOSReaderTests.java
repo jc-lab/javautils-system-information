@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ public class SMBIOSReaderTests {
         linuxSampleReader = new SMBIOSReader();
 
         ByteBuffer buffer = ByteBuffer
-            .wrap(SMBIOSResources.DMI_SAMPLES.get(0).getKey())
+            .wrap(SMBIOSResources.DMI_SAMPLES.get(0).getValue())
             .order(ByteOrder.LITTLE_ENDIAN);
         linuxSampleReader.process(buffer, buffer.remaining());
 
@@ -34,10 +35,31 @@ public class SMBIOSReaderTests {
         windowsSampleReader = new SMBIOSReader();
 
         buffer = ByteBuffer
-            .wrap(SMBIOSResources.WINDOWS_DMI_SAMPLES.get(0).getKey())
+            .wrap(SMBIOSResources.WINDOWS_DMI_SAMPLES.get(0).getValue())
             .order(ByteOrder.LITTLE_ENDIAN);
         WindowsSMBIOS.RawSMBIOSData rawSMBIOSData = new WindowsSMBIOS.RawSMBIOSData(buffer);
         windowsSampleReader.process(buffer, buffer.remaining());
+    }
+
+    @Test
+    public void samplesReadTest() throws IOException {
+        for (Map.Entry<String, byte[]> item : SMBIOSResources.DMI_SAMPLES) {
+            SMBIOSReader reader = new SMBIOSReader();
+
+            System.out.println("FILE: " + item.getKey());
+
+            ByteBuffer buffer = ByteBuffer
+                    .wrap(item.getValue())
+                    .order(ByteOrder.LITTLE_ENDIAN);
+            reader.process(buffer, buffer.remaining());
+
+            SmbiosMemoryDevice memoryDevice = reader.getSmbiosInformation(DmiType.MEMORY_DEVICE);
+
+            if (item.getKey().equalsIgnoreCase("dmi-sample-02.txt")) {
+                SmbiosMemoryDevice.MemoryDevice memoryDevice1 = memoryDevice.getMemoryDevices().get(0);
+                assert memoryDevice1.getSize() == 32L * 1024L * 1024L * 1024L;
+            }
+        }
     }
 
     @Test

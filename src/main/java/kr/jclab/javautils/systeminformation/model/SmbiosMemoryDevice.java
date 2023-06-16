@@ -45,14 +45,35 @@ public class SmbiosMemoryDevice implements SmbiosInformation {
 
     private static long getSize(DMIData data) {
         byte[] raw = data.getRaw();
-        int size = ByteBufferUtil.readByUint16(raw, 0x8);
+        long size = ByteBufferUtil.readByUint16(raw, 0x8) & 0xffff;
 
-        if (data.getHeader().getLength() >= 0x20 &&
-            size == 0x7FFF) {
-            size = ByteBufferUtil.readByInt32(raw, 0x8);
+        if (size == 0) {
+            // Not installed
+            return 0;
+        } else if (size == 0xffff) {
+            // Unknown
+            return -1;
+        } else if (size == 0x7fff) {
+            // Extended Size
+            if (data.getHeader().getLength() < 0x20) {
+                // Something wrong
+                return -1;
+            }
+            size = ByteBufferUtil.readByInt32(raw, 0x18) & 0x7fffffffL;
+            size *= 1024 * 1024;
+        } else {
+            boolean flagKb = (size & 0x8000) != 0;
+            size &= 0x7fff;
+            if (flagKb) {
+                // KB
+                size *= 1024;
+            } else {
+                // MB
+                size *= 1024 * 1024;
+            }
         }
 
-        return (long)size * 1024 * 1024;
+        return size;
     }
 
     private static int getSpeed(DMIData data) {
