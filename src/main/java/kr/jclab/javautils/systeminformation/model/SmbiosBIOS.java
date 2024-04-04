@@ -30,11 +30,17 @@ public class SmbiosBIOS implements SmbiosInformation {
         public SmbiosBIOS parse(DMIData data, SmbiosInformation old) {
             final byte[] raw = data.getRaw();
 
-            return SmbiosBIOS.builder()
-                    .vendor(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
-                    .version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
-                    .date(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""))
-                    .build();
+            SmbiosBIOS.SmbiosBIOSBuilder builder = SmbiosBIOS.builder();
+            if (raw.length >= 1) {
+                builder.vendor(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""));
+            }
+            if (raw.length >= 2) {
+                builder.version(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""));
+            }
+            if (raw.length >= 5) {
+                builder.date(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""));
+            }
+            return builder.build();
         }
     }
 }

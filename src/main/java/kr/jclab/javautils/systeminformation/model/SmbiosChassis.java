@@ -50,14 +50,26 @@ public class SmbiosChassis implements SmbiosInformation {
         public SmbiosChassis parse(DMIData data, SmbiosInformation old) {
             final byte[] raw = data.getRaw();
 
-            return SmbiosChassis.builder()
-                .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
-                .type(getType(raw[0x1]))
-                .lock(getLock((byte)(raw[0x1] >> 7)))
-                .version(Optional.ofNullable(data.getDmiString(raw[0x2])).orElse(""))
-                .serialNumber(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""))
-                .assetTag(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""))
-                .build();
+            SmbiosChassis.SmbiosChassisBuilder builder = SmbiosChassis.builder();
+
+            if (raw.length >= 1) {
+                builder.manufacturer(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""));
+            }
+            if (raw.length >= 2) {
+                builder.type(getType(raw[0x1]));
+                builder.lock(getLock((byte)(raw[0x1] >> 7)));
+            }
+            if (raw.length >= 3) {
+                builder.version(Optional.ofNullable(data.getDmiString(raw[0x2])).orElse(""));
+            }
+            if (raw.length >= 4) {
+                builder.serialNumber(Optional.ofNullable(data.getDmiString(raw[0x3])).orElse(""));
+            }
+            if (raw.length >= 5) {
+                builder.assetTag(Optional.ofNullable(data.getDmiString(raw[0x4])).orElse(""));
+            }
+
+            return builder.build();
         }
     }
 
