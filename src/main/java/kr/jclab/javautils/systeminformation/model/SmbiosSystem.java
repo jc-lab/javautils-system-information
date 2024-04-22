@@ -40,14 +40,18 @@ public class SmbiosSystem implements SmbiosInformation {
         public SmbiosSystem parse(DMIData data, SmbiosInformation old) {
             final byte[] raw = data.getRaw();
 
-            return SmbiosSystem.builder()
+            SmbiosSystem.SmbiosSystemBuilder builder = SmbiosSystem.builder()
                     .manufacturer(Optional.ofNullable(data.getDmiString(raw[0x0])).orElse(""))
                     .productName(Optional.ofNullable(data.getDmiString(raw[0x1])).orElse(""))
                     .version(Optional.ofNullable(data.getDmiString(raw[0x2])).orElse(""))
                     .serialNumber(data.getDmiString(raw[0x3]))
-                    .uuid(ByteBufferUtil.createUUIDFromBytes(Arrays.copyOfRange(raw, 0x4, 0x4 + 16)))
-                    .skuNumber(data.getDmiString(raw[0x15]))
-                    .build();
+                    .uuid(ByteBufferUtil.createUUIDFromBytes(Arrays.copyOfRange(raw, 0x4, 0x4 + 16)));
+
+            if (raw.length > 0x15) {
+                builder.skuNumber(data.getDmiString(raw[0x15]));
+            }
+
+            return builder.build();
         }
     }
 }
