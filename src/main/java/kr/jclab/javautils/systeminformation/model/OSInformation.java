@@ -36,7 +36,7 @@ public class OSInformation {
     private final String releaseId;
 
     /**
-     * install date (unix time, milliseconds)
+     * install date (unix time, seconds)
      */
     private final Long installedAt;
 
